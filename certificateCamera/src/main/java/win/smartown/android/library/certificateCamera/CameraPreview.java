@@ -160,7 +160,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     public boolean switchFlashLight() {
         if (camera != null) {
             Camera.Parameters parameters = camera.getParameters();
-            if (parameters.getFlashMode().equals(Camera.Parameters.FLASH_MODE_OFF)) {
+            if (Camera.Parameters.FLASH_MODE_OFF.equals(parameters.getFlashMode())) {
                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                 camera.setParameters(parameters);
                 return true;
