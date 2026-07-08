@@ -55,6 +55,12 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private final static String EXTRA_TYPE = "type";
     private final static String EXTRA_RESULT = "result";
 
+    private static final float RATIO_16_9 = 16.0f / 9.0f;
+    private static final float CROP_RATIO_COMPANY = 43.0f / 30.0f;
+    private static final float CROP_RATIO_IDCARD = 75.0f / 47.0f;
+    private static final float CROP_SCALE_COMPANY = 0.8f;
+    private static final float CROP_SCALE_IDCARD = 0.75f;
+
     /**
      * @param type {@link #TYPE_IDCARD_FRONT}
      *             {@link #TYPE_IDCARD_BACK}
@@ -114,7 +120,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         //获取屏幕最小边，设置为cameraPreview较窄的一边
         float screenMinSize = Math.min(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels);
         //根据screenMinSize，计算出cameraPreview的较宽的一边，长宽比为标准的16:9
-        float maxSize = screenMinSize / 9.0f * 16.0f;
+        float maxSize = screenMinSize * RATIO_16_9;
         RelativeLayout.LayoutParams layoutParams;
         if (type == TYPE_COMPANY_PORTRAIT) {
             layoutParams = new RelativeLayout.LayoutParams((int) screenMinSize, (int) maxSize);
@@ -127,22 +133,22 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         containerView = findViewById(R.id.camera_crop_container);
         cropView = (ImageView) findViewById(R.id.camera_crop);
         if (type == TYPE_COMPANY_PORTRAIT) {
-            float width = (int) (screenMinSize * 0.8);
-            float height = (int) (width * 43.0f / 30.0f);
+            float width = (int) (screenMinSize * CROP_SCALE_COMPANY);
+            float height = (int) (width * CROP_RATIO_COMPANY);
             LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) height);
             LinearLayout.LayoutParams cropParams = new LinearLayout.LayoutParams((int) width, (int) height);
             containerView.setLayoutParams(containerParams);
             cropView.setLayoutParams(cropParams);
         } else if (type == TYPE_COMPANY_LANDSCAPE) {
-            float height = (int) (screenMinSize * 0.8);
-            float width = (int) (height * 43.0f / 30.0f);
+            float height = (int) (screenMinSize * CROP_SCALE_COMPANY);
+            float width = (int) (height * CROP_RATIO_COMPANY);
             LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams((int) width, ViewGroup.LayoutParams.MATCH_PARENT);
             LinearLayout.LayoutParams cropParams = new LinearLayout.LayoutParams((int) width, (int) height);
             containerView.setLayoutParams(containerParams);
             cropView.setLayoutParams(cropParams);
         } else {
-            float height = (int) (screenMinSize * 0.75);
-            float width = (int) (height * 75.0f / 47.0f);
+            float height = (int) (screenMinSize * CROP_SCALE_IDCARD);
+            float width = (int) (height * CROP_RATIO_IDCARD);
             LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams((int) width, ViewGroup.LayoutParams.MATCH_PARENT);
             LinearLayout.LayoutParams cropParams = new LinearLayout.LayoutParams((int) width, (int) height);
             containerView.setLayoutParams(containerParams);
