@@ -119,7 +119,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Camera.Size getBestSize(List<Camera.Size> sizes) {
         Camera.Size bestSize = null;
         for (Camera.Size size : sizes) {
-            if ((float) size.width / (float) size.height == 16.0f / 9.0f) {
+            if (Math.abs((float) size.width / (float) size.height - 16.0f / 9.0f) < 0.01f) {
                 if (bestSize == null) {
                     bestSize = size;
                 } else {
