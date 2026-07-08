@@ -160,6 +160,16 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
+    public interface OnFocusListener {
+        void onFocusEnd(boolean success);
+    }
+
+    private OnFocusListener onFocusListener;
+
+    public void setOnFocusListener(OnFocusListener listener) {
+        this.onFocusListener = listener;
+    }
+
     public void focus() {
         synchronized (cameraLock) {
             if (camera != null) {
@@ -168,6 +178,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     String focusMode = parameters.getFocusMode();
                     if (Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE.equals(focusMode)
                             || Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO.equals(focusMode)) {
+                        notifyFocusEnd(true);
                         return;
                     }
                     camera.autoFocus(new Camera.AutoFocusCallback() {
@@ -176,16 +187,27 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                             if (!success && cam != null) {
                                 try {
                                     cam.autoFocus(this);
+                                    return;
                                 } catch (Exception e) {
                                     Log.d(TAG, "AutoFocus retry failed: " + e.getMessage());
                                 }
                             }
+                            notifyFocusEnd(success);
                         }
                     });
                 } catch (Exception e) {
                     Log.d(TAG, "AutoFocus failed: " + e.getMessage());
+                    notifyFocusEnd(false);
                 }
+            } else {
+                notifyFocusEnd(false);
             }
+        }
+    }
+
+    private void notifyFocusEnd(boolean success) {
+        if (onFocusListener != null) {
+            onFocusListener.onFocusEnd(success);
         }
     }
 
