@@ -3,39 +3,22 @@ package win.smartown.android.library.certificateCamera;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.util.Log;
 
-/**
- * Created by smartown on 2018/2/24 11:46.
- * <br>
- * Desc:
- * <br>
- * 工具类
- */
 public class CameraUtils {
-    /**
-     * Check if this device has a camera
-     */
+
+    private static final String TAG = "CameraUtils";
+
     public static boolean hasCamera(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            // this device has a camera
-            return true;
-        } else {
-            // no camera on this device
-            return false;
-        }
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
-    /**
-     * A safe way to get an instance of the Camera object.
-     * 默认打开后置摄像头 (Camera.open() 无参)，证件拍摄场景仅需后置。
-     */
     public static Camera openCamera() {
-        Camera c = null;
         try {
-            c = Camera.open(); // attempt to get a Camera instance
-        } catch (Exception e) {
-            // Camera is not available (in use or does not exist)
+            return Camera.open();
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to open camera: " + e.getMessage());
+            return null;
         }
-        return c; // returns null if camera is unavailable
     }
 }
