@@ -59,14 +59,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             try {
                 camera.setPreviewDisplay(holder);
                 Camera.Parameters parameters = camera.getParameters();
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    //竖屏拍照时，需要设置旋转90度，否者看到的相机预览方向和界面方向不相同
-                    camera.setDisplayOrientation(90);
-                    parameters.setRotation(90);
-                } else {
-                    camera.setDisplayOrientation(0);
-                    parameters.setRotation(0);
-                }
+                setCameraOrientation(parameters);
                 Camera.Size bestSize = getBestSize(parameters.getSupportedPreviewSizes());
                 if (bestSize != null) {
                     parameters.setPreviewSize(bestSize.width, bestSize.height);
@@ -82,14 +75,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 Log.d(TAG, "Error setting camera preview: " + e.getMessage());
                 try {
                     Camera.Parameters parameters = camera.getParameters();
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        //竖屏拍照时，需要设置旋转90度，否者看到的相机预览方向和界面方向不相同
-                        camera.setDisplayOrientation(90);
-                        parameters.setRotation(90);
-                    } else {
-                        camera.setDisplayOrientation(0);
-                        parameters.setRotation(0);
-                    }
+                    setCameraOrientation(parameters);
                     camera.setParameters(parameters);
                     camera.startPreview();
                     focus();
@@ -98,6 +84,16 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     camera = null;
                 }
             }
+        }
+    }
+
+    private void setCameraOrientation(Camera.Parameters parameters) {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            camera.setDisplayOrientation(90);
+            parameters.setRotation(90);
+        } else {
+            camera.setDisplayOrientation(0);
+            parameters.setRotation(0);
         }
     }
 
