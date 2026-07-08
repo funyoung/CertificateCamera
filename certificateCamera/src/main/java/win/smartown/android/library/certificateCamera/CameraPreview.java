@@ -60,13 +60,37 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 camera.setPreviewDisplay(holder);
                 Camera.Parameters parameters = camera.getParameters();
                 setCameraOrientation(parameters);
-                Camera.Size bestSize = getBestSize(parameters.getSupportedPreviewSizes());
-                if (bestSize != null) {
-                    parameters.setPreviewSize(bestSize.width, bestSize.height);
-                    parameters.setPictureSize(bestSize.width, bestSize.height);
+                Camera.Size bestPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), 16.0f / 9.0f);
+                if (bestPreviewSize != null) {
+                    parameters.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
                 } else {
-                    parameters.setPreviewSize(1920, 1080);
-                    parameters.setPictureSize(1920, 1080);
+                    bestPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), -1);
+                    if (bestPreviewSize != null) {
+                        parameters.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
+                    }
+                }
+                Camera.Size bestPictureSize = getBestSize(parameters.getSupportedPictureSizes(), 16.0f / 9.0f);
+                if (bestPictureSize == null) {
+                    bestPictureSize = getBestSize(parameters.getSupportedPictureSizes(), -1);
+                }
+                if (bestPictureSize != null) {
+                    parameters.setPictureSize(bestPictureSize.width, bestPictureSize.height);
+                }
+                List<String> focusModes = parameters.getSupportedFocusModes();
+                if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                } else if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                } else if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                }
+                if (parameters.getSupportedWhiteBalance() != null
+                        && parameters.getSupportedWhiteBalance().contains(Camera.Parameters.WHITE_BALANCE_AUTO)) {
+                    parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+                }
+                if (parameters.getSupportedSceneModes() != null
+                        && parameters.getSupportedSceneModes().contains(Camera.Parameters.SCENE_MODE_AUTO)) {
+                    parameters.setSceneMode(Camera.Parameters.SCENE_MODE_AUTO);
                 }
                 camera.setParameters(parameters);
                 camera.startPreview();
@@ -76,6 +100,12 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 try {
                     Camera.Parameters parameters = camera.getParameters();
                     setCameraOrientation(parameters);
+                    List<String> focusModes = parameters.getSupportedFocusModes();
+                    if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                    } else if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                    }
                     camera.setParameters(parameters);
                     camera.startPreview();
                     focus();
@@ -107,21 +137,28 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     /**
-     * Android相机的预览尺寸都是4:3或者16:9，这里遍历所有支持的预览尺寸，得到16:9的最大尺寸，保证成像清晰度
+     * 遍历所有支持的尺寸，得到指定比例的最大尺寸，保证成像清晰度
+     * targetRatio <= 0 时不限制比例，直接选最大尺寸
      *
      * @param sizes
+     * @param targetRatio 目标宽高比，如16:9传入16.0f/9.0f；<=0表示不限比例
      * @return 最佳尺寸
      */
-    private Camera.Size getBestSize(List<Camera.Size> sizes) {
+    private Camera.Size getBestSize(List<Camera.Size> sizes, float targetRatio) {
+        if (sizes == null || sizes.isEmpty()) {
+            return null;
+        }
         Camera.Size bestSize = null;
         for (Camera.Size size : sizes) {
-            if (Math.abs((float) size.width / (float) size.height - 16.0f / 9.0f) < 0.01f) {
-                if (bestSize == null) {
-                    bestSize = size;
-                } else {
-                    if (size.width > bestSize.width) {
+            if (targetRatio > 0) {
+                if (Math.abs((float) size.width / (float) size.height - targetRatio) < 0.01f) {
+                    if (bestSize == null || size.width > bestSize.width) {
                         bestSize = size;
                     }
+                }
+            } else {
+                if (bestSize == null || size.width > bestSize.width) {
+                    bestSize = size;
                 }
             }
         }
@@ -144,7 +181,28 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
      */
     public void focus() {
         if (camera != null) {
-            camera.autoFocus(null);
+            try {
+                Camera.Parameters parameters = camera.getParameters();
+                String focusMode = parameters.getFocusMode();
+                if (Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE.equals(focusMode)
+                        || Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO.equals(focusMode)) {
+                    return;
+                }
+                camera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        if (!success && camera != null) {
+                            try {
+                                camera.autoFocus(this);
+                            } catch (Exception e) {
+                                Log.d(TAG, "AutoFocus retry failed: " + e.getMessage());
+                            }
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                Log.d(TAG, "AutoFocus failed: " + e.getMessage());
+            }
         }
     }
 
