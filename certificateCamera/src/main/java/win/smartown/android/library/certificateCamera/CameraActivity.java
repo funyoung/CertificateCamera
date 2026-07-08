@@ -255,7 +255,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                                     resultView.setVisibility(View.VISIBLE);
                                 }
                             });
-                            return;
+
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         } catch (IOException e) {
