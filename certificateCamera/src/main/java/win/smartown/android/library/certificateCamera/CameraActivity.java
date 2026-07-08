@@ -9,8 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -282,7 +282,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         });
     }
 
-    private File getCacheDir() {
+    private File getImageCacheDir() {
         File dir = getExternalCacheDir();
         if (dir == null) {
             dir = getCacheDir();
@@ -296,14 +296,14 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private File getOriginalFile() {
         switch (type) {
             case TYPE_IDCARD_FRONT:
-                return new File(getCacheDir(), "idCardFront.jpg");
+                return new File(getImageCacheDir(), "idCardFront.jpg");
             case TYPE_IDCARD_BACK:
-                return new File(getCacheDir(), "idCardBack.jpg");
+                return new File(getImageCacheDir(), "idCardBack.jpg");
             case TYPE_COMPANY_PORTRAIT:
             case TYPE_COMPANY_LANDSCAPE:
-                return new File(getCacheDir(), "companyInfo.jpg");
+                return new File(getImageCacheDir(), "companyInfo.jpg");
         }
-        return new File(getCacheDir(), "picture.jpg");
+        return new File(getImageCacheDir(), "picture.jpg");
     }
 
     /**
@@ -312,14 +312,14 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private File getCropFile() {
         switch (type) {
             case TYPE_IDCARD_FRONT:
-                return new File(getCacheDir(), "idCardFrontCrop.jpg");
+                return new File(getImageCacheDir(), "idCardFrontCrop.jpg");
             case TYPE_IDCARD_BACK:
-                return new File(getCacheDir(), "idCardBackCrop.jpg");
+                return new File(getImageCacheDir(), "idCardBackCrop.jpg");
             case TYPE_COMPANY_PORTRAIT:
             case TYPE_COMPANY_LANDSCAPE:
-                return new File(getCacheDir(), "companyInfoCrop.jpg");
+                return new File(getImageCacheDir(), "companyInfoCrop.jpg");
         }
-        return new File(getCacheDir(), "pictureCrop.jpg");
+        return new File(getImageCacheDir(), "pictureCrop.jpg");
     }
 
     /**
