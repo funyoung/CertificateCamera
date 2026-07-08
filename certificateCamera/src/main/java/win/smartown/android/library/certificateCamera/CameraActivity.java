@@ -206,9 +206,9 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                     public void run() {
                         try {
                             File originalFile = getOriginalFile();
-                            FileOutputStream originalFileOutputStream = new FileOutputStream(originalFile);
-                            originalFileOutputStream.write(data);
-                            originalFileOutputStream.close();
+                            try (FileOutputStream originalFileOutputStream = new FileOutputStream(originalFile)) {
+                                originalFileOutputStream.write(data);
+                            }
 
                             Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getPath());
 
@@ -224,7 +224,6 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                                 right = containerRight / (float) previewWidth;
                                 bottom = cropBottom / (float) previewHeight;
                             }
-                            //裁剪及保存到文件
                             Bitmap cropBitmap = Bitmap.createBitmap(bitmap,
                                     (int) (left * (float) bitmap.getWidth()),
                                     (int) (top * (float) bitmap.getHeight()),
@@ -232,10 +231,10 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                                     (int) ((bottom - top) * (float) bitmap.getHeight()));
 
                             final File cropFile = getCropFile();
-                            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cropFile));
-                            cropBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-                            bos.flush();
-                            bos.close();
+                            try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cropFile))) {
+                                cropBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                                bos.flush();
+                            }
                             cropBitmap.recycle();
                             bitmap.recycle();
                             runOnUiThread(new Runnable() {
