@@ -106,6 +106,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private ImageView flashImageView;
     private View optionView;
     private View resultView;
+    private View processingView;
 
     private int type;
     private boolean permissionRequested = false;
@@ -208,6 +209,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         flashImageView = (ImageView) findViewById(R.id.camera_flash);
         optionView = findViewById(R.id.camera_option);
         resultView = findViewById(R.id.camera_result);
+        processingView = findViewById(R.id.camera_processing);
         cameraPreview.setOnClickListener(this);
         findViewById(R.id.camera_close).setOnClickListener(this);
         findViewById(R.id.camera_take).setOnClickListener(this);
@@ -240,6 +242,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
     private void takePhoto() {
         optionView.setVisibility(View.GONE);
+        processingView.setVisibility(View.VISIBLE);
         cameraPreview.setEnabled(false);
         final float cropLeft = cropView.getLeft();
         final float cropTop = cropView.getTop();
@@ -325,6 +328,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    processingView.setVisibility(View.GONE);
                                     resultView.setVisibility(View.VISIBLE);
                                 }
                             });
@@ -342,6 +346,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                processingView.setVisibility(View.GONE);
                                 optionView.setVisibility(View.VISIBLE);
                                 cameraPreview.setEnabled(true);
                             }
