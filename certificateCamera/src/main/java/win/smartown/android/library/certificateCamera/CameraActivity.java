@@ -349,11 +349,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     }
 
     private File getImageCacheDir() {
-        File dir = getExternalCacheDir();
-        if (dir == null) {
-            dir = getCacheDir();
-        }
-        return dir;
+        return getCacheDir();
     }
 
     /**
