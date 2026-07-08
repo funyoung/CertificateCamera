@@ -98,6 +98,8 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         return "";
     }
 
+    private static final int PERMISSION_REQUEST_CODE = 0X15;
+
     private CameraPreview cameraPreview;
     private View containerView;
     private ImageView cropView;
@@ -106,16 +108,35 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private View resultView;
 
     private int type;
+    private boolean permissionRequested = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CODE);
-            finish();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
+            permissionRequested = true;
             return;
         }
+        initCameraView();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initCameraView();
+            } else {
+                notifyError("相机权限被拒绝，无法使用拍照功能");
+                finish();
+            }
+        }
+    }
+
+    private void initCameraView() {
         if (!CameraUtils.hasCamera(this)) {
+            notifyError("设备不支持相机");
             finish();
             return;
         }
