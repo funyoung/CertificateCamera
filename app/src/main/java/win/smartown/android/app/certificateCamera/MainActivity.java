@@ -24,6 +24,9 @@ import win.smartown.android.library.certificateCamera.CameraActivity;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
+    private int pendingType;
+
+    private static final int PERMISSION_REQUEST_CODE = 0x12;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +53,19 @@ public class MainActivity extends AppCompatActivity {
      */
     private void takePhoto(int type) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0x12);
+            pendingType = type;
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
             return;
         }
         CameraActivity.openCertificateCamera(this, type);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            CameraActivity.openCertificateCamera(this, pendingType);
+        }
     }
 
     /**
