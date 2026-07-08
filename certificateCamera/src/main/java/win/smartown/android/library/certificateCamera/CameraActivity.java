@@ -110,6 +110,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
     private int type;
     private boolean permissionRequested = false;
+    private String cropFilePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -325,6 +326,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             cropBitmap.recycle();
                             bitmap.recycle();
                             originalFile.delete();
+                            cropFilePath = cropFile.getPath();
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -421,7 +423,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
      */
     private void goBack() {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_RESULT, getCropFile().getPath());
+        intent.putExtra(EXTRA_RESULT, cropFilePath);
         setResult(RESULT_CODE, intent);
         finish();
     }
