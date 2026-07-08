@@ -275,20 +275,28 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         });
     }
 
+    private File getCacheDir() {
+        File dir = getExternalCacheDir();
+        if (dir == null) {
+            dir = getCacheDir();
+        }
+        return dir;
+    }
+
     /**
      * @return 拍摄图片原始文件
      */
     private File getOriginalFile() {
         switch (type) {
             case TYPE_IDCARD_FRONT:
-                return new File(getExternalCacheDir(), "idCardFront.jpg");
+                return new File(getCacheDir(), "idCardFront.jpg");
             case TYPE_IDCARD_BACK:
-                return new File(getExternalCacheDir(), "idCardBack.jpg");
+                return new File(getCacheDir(), "idCardBack.jpg");
             case TYPE_COMPANY_PORTRAIT:
             case TYPE_COMPANY_LANDSCAPE:
-                return new File(getExternalCacheDir(), "companyInfo.jpg");
+                return new File(getCacheDir(), "companyInfo.jpg");
         }
-        return new File(getExternalCacheDir(), "picture.jpg");
+        return new File(getCacheDir(), "picture.jpg");
     }
 
     /**
@@ -297,14 +305,14 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private File getCropFile() {
         switch (type) {
             case TYPE_IDCARD_FRONT:
-                return new File(getExternalCacheDir(), "idCardFrontCrop.jpg");
+                return new File(getCacheDir(), "idCardFrontCrop.jpg");
             case TYPE_IDCARD_BACK:
-                return new File(getExternalCacheDir(), "idCardBackCrop.jpg");
+                return new File(getCacheDir(), "idCardBackCrop.jpg");
             case TYPE_COMPANY_PORTRAIT:
             case TYPE_COMPANY_LANDSCAPE:
-                return new File(getExternalCacheDir(), "companyInfoCrop.jpg");
+                return new File(getCacheDir(), "companyInfoCrop.jpg");
         }
-        return new File(getExternalCacheDir(), "pictureCrop.jpg");
+        return new File(getCacheDir(), "pictureCrop.jpg");
     }
 
     /**
