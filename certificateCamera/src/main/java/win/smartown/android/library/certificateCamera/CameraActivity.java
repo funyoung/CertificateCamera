@@ -178,11 +178,20 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private void takePhoto() {
         optionView.setVisibility(View.GONE);
         cameraPreview.setEnabled(false);
+        final float cropLeft = cropView.getLeft();
+        final float cropTop = cropView.getTop();
+        final float cropRight = cropView.getRight();
+        final float cropBottom = cropView.getBottom();
+        final float containerLeft = containerView.getLeft();
+        final float containerTop = containerView.getTop();
+        final float containerRight = containerView.getRight();
+        final float containerBottom = containerView.getBottom();
+        final int previewWidth = cameraPreview.getWidth();
+        final int previewHeight = cameraPreview.getHeight();
         cameraPreview.takePhoto(new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(final byte[] data, Camera camera) {
                 camera.stopPreview();
-                //子线程处理图片，防止ANR
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -194,18 +203,17 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
                             Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getPath());
 
-                            //计算裁剪位置
                             float left, top, right, bottom;
                             if (type == TYPE_COMPANY_PORTRAIT) {
-                                left = (float) cropView.getLeft() / (float) cameraPreview.getWidth();
-                                top = ((float) containerView.getTop() - (float) cameraPreview.getTop()) / (float) cameraPreview.getHeight();
-                                right = (float) cropView.getRight() / (float) cameraPreview.getWidth();
-                                bottom = (float) containerView.getBottom() / (float) cameraPreview.getHeight();
+                                left = cropLeft / (float) previewWidth;
+                                top = (containerTop - (float) cameraPreview.getTop()) / (float) previewHeight;
+                                right = cropRight / (float) previewWidth;
+                                bottom = containerBottom / (float) previewHeight;
                             } else {
-                                left = ((float) containerView.getLeft() - (float) cameraPreview.getLeft()) / (float) cameraPreview.getWidth();
-                                top = (float) cropView.getTop() / (float) cameraPreview.getHeight();
-                                right = (float) containerView.getRight() / (float) cameraPreview.getWidth();
-                                bottom = (float) cropView.getBottom() / (float) cameraPreview.getHeight();
+                                left = (containerLeft - (float) cameraPreview.getLeft()) / (float) previewWidth;
+                                top = cropTop / (float) previewHeight;
+                                right = containerRight / (float) previewWidth;
+                                bottom = cropBottom / (float) previewHeight;
                             }
                             //裁剪及保存到文件
                             Bitmap cropBitmap = Bitmap.createBitmap(bitmap,
