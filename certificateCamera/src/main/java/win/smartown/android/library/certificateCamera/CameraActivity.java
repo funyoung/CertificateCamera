@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import android.util.Log;
 
 /**
  * Created by smartown on 2018/2/24 11:46.
@@ -32,6 +33,14 @@ import java.io.IOException;
  * 拍照界面
  */
 public class CameraActivity extends Activity implements View.OnClickListener {
+
+    private static final String TAG = "CameraActivity";
+
+    public interface OnCameraErrorListener {
+        void onCameraError(String message);
+    }
+
+    private static OnCameraErrorListener errorListener;
 
     /**
      * 拍摄类型-身份证正面
@@ -69,6 +78,11 @@ public class CameraActivity extends Activity implements View.OnClickListener {
      *             {@link #TYPE_COMPANY_LANDSCAPE}
      */
     public static void openCertificateCamera(Activity activity, int type) {
+        openCertificateCamera(activity, type, null);
+    }
+
+    public static void openCertificateCamera(Activity activity, int type, OnCameraErrorListener listener) {
+        errorListener = listener;
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra(EXTRA_TYPE, type);
         activity.startActivityForResult(intent, REQUEST_CODE);
@@ -275,9 +289,14 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             });
 
                         } catch (FileNotFoundException e) {
-                            e.printStackTrace();
+                            Log.e(TAG, "File not found during photo processing", e);
+                            notifyError("文件未找到: " + e.getMessage());
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            Log.e(TAG, "IO error during photo processing", e);
+                            notifyError("IO错误: " + e.getMessage());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Unexpected error during photo processing", e);
+                            notifyError("处理照片时出错: " + e.getMessage());
                         }
                         runOnUiThread(new Runnable() {
                             @Override
@@ -346,6 +365,17 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                 return new File(getImageCacheDir(), "companyInfoCrop.jpg");
         }
         return new File(getImageCacheDir(), "pictureCrop.jpg");
+    }
+
+    private void notifyError(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (errorListener != null) {
+                    errorListener.onCameraError(message);
+                }
+            }
+        });
     }
 
     /**
