@@ -5,9 +5,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
+import android.graphics.Matrix;
+
 import android.hardware.Camera;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
@@ -268,13 +270,20 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                                 originalFileOutputStream.write(data);
                             }
 
+                            int rotation = getExpectedRotation();
+
                             BitmapFactory.Options options = new BitmapFactory.Options();
                             options.inJustDecodeBounds = true;
                             BitmapFactory.decodeFile(originalFile.getPath(), options);
 
                             int reqWidth = cameraPreview.getWidth();
                             int reqHeight = cameraPreview.getHeight();
-                            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+                            boolean isRotated90or270 = (rotation == 90 || rotation == 270);
+                            int srcWidth = isRotated90or270 ? options.outHeight : options.outWidth;
+                            int srcHeight = isRotated90or270 ? options.outWidth : options.outHeight;
+
+                            options.inSampleSize = calculateInSampleSize(srcWidth, srcHeight, reqWidth, reqHeight);
                             options.inJustDecodeBounds = false;
                             options.inPreferredConfig = Bitmap.Config.RGB_565;
 
@@ -282,6 +291,16 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             if (bitmap == null) {
                                 notifyError("图片解码失败");
                                 return;
+                            }
+
+                            if (rotation != 0) {
+                                Matrix matrix = new Matrix();
+                                matrix.postRotate(rotation);
+                                Bitmap rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                                if (rotated != bitmap) {
+                                    bitmap.recycle();
+                                }
+                                bitmap = rotated;
                             }
 
                             float left, top, right, bottom;
@@ -360,19 +379,24 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         });
     }
 
-    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
+    private static int calculateInSampleSize(int srcWidth, int srcHeight, int reqWidth, int reqHeight) {
         int inSampleSize = 1;
-        if (height > reqHeight || width > reqWidth) {
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
+        if (srcHeight > reqHeight || srcWidth > reqWidth) {
+            final int halfHeight = srcHeight / 2;
+            final int halfWidth = srcWidth / 2;
             while ((halfHeight / inSampleSize) >= reqHeight
                     && (halfWidth / inSampleSize) >= reqWidth) {
                 inSampleSize *= 2;
             }
         }
         return inSampleSize;
+    }
+
+    private int getExpectedRotation() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            return 90;
+        }
+        return 0;
     }
 
     private File getImageCacheDir() {
