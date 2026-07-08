@@ -60,7 +60,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="136dp"
+            android:layout_height="@dimen/camera_option_bar_size"
             android:background="@color/preview_mock">
 
             <LinearLayout
@@ -72,21 +72,21 @@
 
                 <ImageView
                     android:id="@+id/camera_close"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="@dimen/camera_button_size"
+                    android:layout_height="@dimen/camera_button_size"
                     android:src="@mipmap/camera_close" />
 
                 <ImageView
                     android:id="@+id/camera_take"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:layout_margin="32dp"
+                    android:layout_width="@dimen/camera_take_button_size"
+                    android:layout_height="@dimen/camera_take_button_size"
+                    android:layout_margin="@dimen/camera_button_margin"
                     android:src="@mipmap/camera_take" />
 
                 <ImageView
                     android:id="@+id/camera_flash"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="@dimen/camera_button_size"
+                    android:layout_height="@dimen/camera_button_size"
                     android:src="@mipmap/camera_flash_off" />
 
             </LinearLayout>
@@ -101,15 +101,15 @@
 
                 <ImageView
                     android:id="@+id/camera_result_cancel"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="@dimen/camera_button_size"
+                    android:layout_height="@dimen/camera_button_size"
                     android:src="@mipmap/camera_result_cancel" />
 
                 <ImageView
                     android:id="@+id/camera_result_ok"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginLeft="80dp"
+                    android:layout_width="@dimen/camera_button_size"
+                    android:layout_height="@dimen/camera_button_size"
+                    android:layout_marginLeft="@dimen/camera_result_button_spacing"
                     android:src="@mipmap/camera_result_ok" />
 
             </LinearLayout>
