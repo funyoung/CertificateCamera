@@ -219,6 +219,8 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             cropBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
                             bos.flush();
                             bos.close();
+                            cropBitmap.recycle();
+                            bitmap.recycle();
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
