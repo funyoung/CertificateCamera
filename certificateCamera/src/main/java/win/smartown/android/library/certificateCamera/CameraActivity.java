@@ -377,36 +377,32 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         return getCacheDir();
     }
 
+    private String getTypePrefix() {
+        switch (type) {
+            case TYPE_IDCARD_FRONT:
+                return "idCardFront";
+            case TYPE_IDCARD_BACK:
+                return "idCardBack";
+            case TYPE_COMPANY_PORTRAIT:
+            case TYPE_COMPANY_LANDSCAPE:
+                return "companyInfo";
+            default:
+                return "picture";
+        }
+    }
+
     /**
      * @return 拍摄图片原始文件
      */
     private File getOriginalFile() {
-        switch (type) {
-            case TYPE_IDCARD_FRONT:
-                return new File(getImageCacheDir(), "idCardFront.jpg");
-            case TYPE_IDCARD_BACK:
-                return new File(getImageCacheDir(), "idCardBack.jpg");
-            case TYPE_COMPANY_PORTRAIT:
-            case TYPE_COMPANY_LANDSCAPE:
-                return new File(getImageCacheDir(), "companyInfo.jpg");
-        }
-        return new File(getImageCacheDir(), "picture.jpg");
+        return new File(getImageCacheDir(), getTypePrefix() + "_" + System.currentTimeMillis() + ".jpg");
     }
 
     /**
      * @return 拍摄图片裁剪文件
      */
     private File getCropFile() {
-        switch (type) {
-            case TYPE_IDCARD_FRONT:
-                return new File(getImageCacheDir(), "idCardFrontCrop.jpg");
-            case TYPE_IDCARD_BACK:
-                return new File(getImageCacheDir(), "idCardBackCrop.jpg");
-            case TYPE_COMPANY_PORTRAIT:
-            case TYPE_COMPANY_LANDSCAPE:
-                return new File(getImageCacheDir(), "companyInfoCrop.jpg");
-        }
-        return new File(getImageCacheDir(), "pictureCrop.jpg");
+        return new File(getImageCacheDir(), getTypePrefix() + "Crop_" + System.currentTimeMillis() + ".jpg");
     }
 
     private void notifyError(final String message) {
