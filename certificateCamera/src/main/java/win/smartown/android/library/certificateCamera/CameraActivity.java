@@ -92,6 +92,11 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             return;
         }
         type = getIntent().getIntExtra("type", 0);
+        if (type != TYPE_IDCARD_FRONT && type != TYPE_IDCARD_BACK
+                && type != TYPE_COMPANY_PORTRAIT && type != TYPE_COMPANY_LANDSCAPE) {
+            finish();
+            return;
+        }
         if (type == TYPE_COMPANY_PORTRAIT) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         } else {
