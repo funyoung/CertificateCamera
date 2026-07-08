@@ -16,7 +16,7 @@
         <activity
             android:name=".CameraActivity"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" />
+            android:theme="@style/CameraTheme" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
