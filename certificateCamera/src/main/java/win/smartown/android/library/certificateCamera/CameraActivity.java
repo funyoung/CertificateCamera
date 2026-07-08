@@ -52,6 +52,9 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     public final static int REQUEST_CODE = 0X13;
     public final static int RESULT_CODE = 0X14;
 
+    private final static String EXTRA_TYPE = "type";
+    private final static String EXTRA_RESULT = "result";
+
     /**
      * @param type {@link #TYPE_IDCARD_FRONT}
      *             {@link #TYPE_IDCARD_BACK}
@@ -60,7 +63,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
      */
     public static void openCertificateCamera(Activity activity, int type) {
         Intent intent = new Intent(activity, CameraActivity.class);
-        intent.putExtra("type", type);
+        intent.putExtra(EXTRA_TYPE, type);
         activity.startActivityForResult(intent, REQUEST_CODE);
     }
 
@@ -69,7 +72,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
      */
     public static String getResult(Intent data) {
         if (data != null) {
-            return data.getStringExtra("result");
+            return data.getStringExtra(EXTRA_RESULT);
         }
         return "";
     }
@@ -95,7 +98,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             finish();
             return;
         }
-        type = getIntent().getIntExtra("type", 0);
+        type = getIntent().getIntExtra(EXTRA_TYPE, 0);
         if (type != TYPE_IDCARD_FRONT && type != TYPE_IDCARD_BACK
                 && type != TYPE_COMPANY_PORTRAIT && type != TYPE_COMPANY_LANDSCAPE) {
             finish();
@@ -309,7 +312,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
      */
     private void goBack() {
         Intent intent = new Intent();
-        intent.putExtra("result", getCropFile().getPath());
+        intent.putExtra(EXTRA_RESULT, getCropFile().getPath());
         setResult(RESULT_CODE, intent);
         finish();
     }
