@@ -244,7 +244,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
                             final File cropFile = getCropFile();
                             try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cropFile))) {
-                                cropBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                                cropBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bos);
                                 bos.flush();
                             }
                             cropBitmap.recycle();
