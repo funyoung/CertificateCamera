@@ -27,6 +27,7 @@ public class CameraUtils {
 
     /**
      * A safe way to get an instance of the Camera object.
+     * 默认打开后置摄像头 (Camera.open() 无参)，证件拍摄场景仅需后置。
      */
     public static Camera openCamera() {
         Camera c = null;
