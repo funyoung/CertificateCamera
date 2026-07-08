@@ -91,6 +91,10 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             finish();
             return;
         }
+        if (!CameraUtils.hasCamera(this)) {
+            finish();
+            return;
+        }
         type = getIntent().getIntExtra("type", 0);
         if (type != TYPE_IDCARD_FRONT && type != TYPE_IDCARD_BACK
                 && type != TYPE_COMPANY_PORTRAIT && type != TYPE_COMPANY_LANDSCAPE) {
