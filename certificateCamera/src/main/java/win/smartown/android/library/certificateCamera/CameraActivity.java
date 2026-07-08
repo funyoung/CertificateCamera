@@ -275,6 +275,10 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             options.inPreferredConfig = Bitmap.Config.RGB_565;
 
                             Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getPath(), options);
+                            if (bitmap == null) {
+                                notifyError("图片解码失败");
+                                return;
+                            }
 
                             float left, top, right, bottom;
                             if (type == TYPE_COMPANY_PORTRAIT) {
@@ -288,11 +292,27 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                                 right = containerRight / (float) previewWidth;
                                 bottom = cropBottom / (float) previewHeight;
                             }
-                            Bitmap cropBitmap = Bitmap.createBitmap(bitmap,
-                                    (int) (left * (float) bitmap.getWidth()),
-                                    (int) (top * (float) bitmap.getHeight()),
-                                    (int) ((right - left) * (float) bitmap.getWidth()),
-                                    (int) ((bottom - top) * (float) bitmap.getHeight()));
+
+                            left = Math.max(0f, Math.min(left, 1f));
+                            top = Math.max(0f, Math.min(top, 1f));
+                            right = Math.max(left, Math.min(right, 1f));
+                            bottom = Math.max(top, Math.min(bottom, 1f));
+
+                            int cropX = (int) (left * bitmap.getWidth());
+                            int cropY = (int) (top * bitmap.getHeight());
+                            int cropWidth = (int) ((right - left) * bitmap.getWidth());
+                            int cropHeight = (int) ((bottom - top) * bitmap.getHeight());
+
+                            cropWidth = Math.min(cropWidth, bitmap.getWidth() - cropX);
+                            cropHeight = Math.min(cropHeight, bitmap.getHeight() - cropY);
+
+                            if (cropWidth <= 0 || cropHeight <= 0) {
+                                bitmap.recycle();
+                                notifyError("裁剪区域无效");
+                                return;
+                            }
+
+                            Bitmap cropBitmap = Bitmap.createBitmap(bitmap, cropX, cropY, cropWidth, cropHeight);
 
                             final File cropFile = getCropFile();
                             try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cropFile))) {
