@@ -249,6 +249,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             }
                             cropBitmap.recycle();
                             bitmap.recycle();
+                            originalFile.delete();
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
