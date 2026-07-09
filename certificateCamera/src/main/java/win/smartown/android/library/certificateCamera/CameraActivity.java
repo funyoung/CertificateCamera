@@ -188,6 +188,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
         containerView = findViewById(R.id.camera_crop_container);
         cropView = (ImageView) findViewById(R.id.camera_crop);
+        resultPreviewView = (ImageView) findViewById(R.id.camera_result_preview);
         if (type == TYPE_COMPANY_PORTRAIT) {
             float width = (int) (screenMinSize * CROP_SCALE_COMPANY);
             float height = (int) (width * CROP_RATIO_COMPANY);
@@ -195,6 +196,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             LinearLayout.LayoutParams cropParams = new LinearLayout.LayoutParams((int) width, (int) height);
             containerView.setLayoutParams(containerParams);
             cropView.setLayoutParams(cropParams);
+            resultPreviewView.setLayoutParams(cropParams);
         } else if (type == TYPE_COMPANY_LANDSCAPE) {
             float height = (int) (screenMinSize * CROP_SCALE_COMPANY);
             float width = (int) (height * CROP_RATIO_COMPANY);
@@ -202,6 +204,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             LinearLayout.LayoutParams cropParams = new LinearLayout.LayoutParams((int) width, (int) height);
             containerView.setLayoutParams(containerParams);
             cropView.setLayoutParams(cropParams);
+            resultPreviewView.setLayoutParams(cropParams);
         } else {
             float height = (int) (screenMinSize * CROP_SCALE_IDCARD);
             float width = (int) (height * CROP_RATIO_IDCARD);
@@ -209,6 +212,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             LinearLayout.LayoutParams cropParams = new LinearLayout.LayoutParams((int) width, (int) height);
             containerView.setLayoutParams(containerParams);
             cropView.setLayoutParams(cropParams);
+            resultPreviewView.setLayoutParams(cropParams);
         }
         switch (type) {
             case TYPE_IDCARD_FRONT:
@@ -229,7 +233,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         optionView = findViewById(R.id.camera_option);
         resultView = findViewById(R.id.camera_result);
         processingView = findViewById(R.id.camera_processing);
-        resultPreviewView = (ImageView) findViewById(R.id.camera_result_preview);
+
         cameraPreview.setOnClickListener(this);
         findViewById(R.id.camera_close).setOnClickListener(this);
         findViewById(R.id.camera_take).setOnClickListener(this);
