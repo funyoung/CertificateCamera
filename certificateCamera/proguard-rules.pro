@@ -8,6 +8,3 @@
     public *;
 }
 
--keep public class win.smartown.android.library.certificateCamera.CameraUtils {
-    public *;
-}
