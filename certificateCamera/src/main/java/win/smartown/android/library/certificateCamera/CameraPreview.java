@@ -14,6 +14,7 @@ import androidx.camera.view.PreviewView;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 public class CameraPreview {
 
@@ -90,7 +91,7 @@ public class CameraPreview {
 
     public void takePhoto(final ImageCapture.OnImageCapturedCallback callback) {
         if (imageCapture != null) {
-            imageCapture.takePicture(callback);
+            imageCapture.takePicture(Executors.newSingleThreadExecutor(), callback);
         }
     }
 
