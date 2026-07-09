@@ -393,6 +393,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                                 processingView.setVisibility(View.GONE);
                                 optionView.setVisibility(View.VISIBLE);
                                 cameraPreview.setEnabled(true);
+                                cameraPreview.startPreview();
                             }
                         });
                     }
