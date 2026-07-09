@@ -128,6 +128,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private int type;
 
     private String cropFilePath;
+    private MediaActionSound mediaActionSound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -492,8 +493,10 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
     private void playShutterSound() {
         try {
-            MediaActionSound sound = new MediaActionSound();
-            sound.play(MediaActionSound.SHUTTER_CLICK);
+            if (mediaActionSound == null) {
+                mediaActionSound = new MediaActionSound();
+            }
+            mediaActionSound.play(MediaActionSound.SHUTTER_CLICK);
         } catch (Exception e) {
             Log.d(TAG, "Shutter sound failed: " + e.getMessage());
         }
@@ -507,6 +510,15 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         intent.putExtra(EXTRA_RESULT, cropFilePath);
         setResult(RESULT_CODE, intent);
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaActionSound != null) {
+            mediaActionSound.release();
+            mediaActionSound = null;
+        }
     }
 
 }
