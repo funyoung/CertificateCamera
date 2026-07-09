@@ -205,9 +205,16 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
-    private void notifyFocusEnd(boolean success) {
+    private void notifyFocusEnd(final boolean success) {
         if (onFocusListener != null) {
-            onFocusListener.onFocusEnd(success);
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    if (onFocusListener != null) {
+                        onFocusListener.onFocusEnd(success);
+                    }
+                }
+            });
         }
     }
 
