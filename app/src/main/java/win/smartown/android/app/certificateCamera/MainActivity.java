@@ -2,6 +2,7 @@ package win.smartown.android.app.certificateCamera;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.activity.result.ActivityResult;
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == CameraActivity.RESULT_CODE && result.getData() != null) {
                         String path = CameraActivity.getResult(result.getData());
                         if (!TextUtils.isEmpty(path)) {
-                            imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+                            imageView.setImageBitmap(decodeSampledBitmap(path, imageView.getWidth(), imageView.getHeight()));
                         }
                     }
                 }
@@ -79,6 +80,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void businessLicenseLandscape(View view) {
         takePhoto(CameraActivity.TYPE_COMPANY_LANDSCAPE);
+    }
+
+    private static Bitmap decodeSampledBitmap(String path, int reqWidth, int reqHeight) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+        if (reqWidth <= 0 || reqHeight <= 0) {
+            reqWidth = options.outWidth / 2;
+            reqHeight = options.outHeight / 2;
+        }
+        int inSampleSize = 1;
+        if (options.outHeight > reqHeight || options.outWidth > reqWidth) {
+            final int halfHeight = options.outHeight / 2;
+            final int halfWidth = options.outWidth / 2;
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        options.inSampleSize = inSampleSize;
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
     }
 
 }
