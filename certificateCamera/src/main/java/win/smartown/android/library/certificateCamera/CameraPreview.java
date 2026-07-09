@@ -73,14 +73,19 @@ public class CameraPreview {
         if (cameraProvider == null) {
             return;
         }
-        if (lensFacing == CameraSelector.LENS_FACING_BACK) {
-            if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
-                lensFacing = CameraSelector.LENS_FACING_FRONT;
+        try {
+            if (lensFacing == CameraSelector.LENS_FACING_BACK) {
+                if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                    lensFacing = CameraSelector.LENS_FACING_FRONT;
+                }
+            } else {
+                if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                    lensFacing = CameraSelector.LENS_FACING_BACK;
+                }
             }
-        } else {
-            if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
-                lensFacing = CameraSelector.LENS_FACING_BACK;
-            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to check camera availability: " + e.getMessage());
+            return;
         }
         bindCameraUseCases();
     }
