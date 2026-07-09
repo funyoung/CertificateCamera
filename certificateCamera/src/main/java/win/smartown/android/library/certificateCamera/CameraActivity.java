@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import android.util.Log;
+import java.lang.ref.WeakReference;
 
 /**
  * Created by smartown on 2018/2/24 11:46.
@@ -42,7 +43,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         void onCameraError(String message);
     }
 
-    private static OnCameraErrorListener errorListener;
+    private static WeakReference<OnCameraErrorListener> errorListenerRef;
 
     /**
      * 拍摄类型-身份证正面
@@ -84,7 +85,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     }
 
     public static void openCertificateCamera(Activity activity, int type, OnCameraErrorListener listener) {
-        errorListener = listener;
+        errorListenerRef = listener != null ? new WeakReference<>(listener) : null;
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra(EXTRA_TYPE, type);
         activity.startActivityForResult(intent, REQUEST_CODE);
@@ -435,8 +436,11 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (errorListener != null) {
-                    errorListener.onCameraError(message);
+                if (errorListenerRef != null) {
+                    OnCameraErrorListener listener = errorListenerRef.get();
+                    if (listener != null) {
+                        listener.onCameraError(message);
+                    }
                 }
             }
         });
