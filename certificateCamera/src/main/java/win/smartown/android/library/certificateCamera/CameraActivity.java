@@ -421,7 +421,28 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     }
 
     private File getImageCacheDir() {
-        return getCacheDir();
+        File dir = getCacheDir();
+        cleanCacheDir(dir);
+        return dir;
+    }
+
+    private void cleanCacheDir(File dir) {
+        if (dir == null || !dir.exists()) {
+            return;
+        }
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long maxAge = 24 * 60 * 60 * 1000L;
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith(".jpg")) {
+                if (now - file.lastModified() > maxAge) {
+                    file.delete();
+                }
+            }
+        }
     }
 
     private String getTypePrefix() {
