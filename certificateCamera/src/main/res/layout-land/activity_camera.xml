@@ -95,7 +95,7 @@
                     android:layout_width="@dimen/camera_button_size"
                     android:layout_height="@dimen/camera_button_size"
                     android:layout_marginBottom="@dimen/camera_button_margin"
-                    android:src="@android:drawable/ic_menu_camera" />
+                    android:src="@drawable/camera_switch" />
 
                 <ImageView
                     android:id="@+id/camera_close"
