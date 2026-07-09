@@ -268,6 +268,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                     public void run() {
                         try {
                             byte[] data = imageProxyToBytes(image);
+                            int rotation = image.getImageInfo().getRotationDegrees();
                             image.close();
 
                             File originalFile = getOriginalFile();
@@ -275,7 +276,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 fos.write(data);
                             }
 
-                            int rotation = getExpectedRotation();
 
                             BitmapFactory.Options options = new BitmapFactory.Options();
                             options.inJustDecodeBounds = true;
@@ -405,6 +405,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     private byte[] imageProxyToBytes(ImageProxy image) {
         ImageProxy.PlaneProxy[] planes = image.getPlanes();
+        if (planes.length == 1) {
+            ByteBuffer buffer = planes[0].getBuffer();
+            byte[] data = new byte[buffer.remaining()];
+            buffer.get(data);
+            return data;
+        }
         ByteBuffer yBuffer = planes[0].getBuffer();
         ByteBuffer uBuffer = planes[1].getBuffer();
         ByteBuffer vBuffer = planes[2].getBuffer();
