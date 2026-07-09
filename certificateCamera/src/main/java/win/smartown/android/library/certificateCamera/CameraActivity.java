@@ -4,7 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -437,12 +437,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         return inSampleSize;
     }
 
-    private int getExpectedRotation() {
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return 90;
-        }
-        return 0;
-    }
 
     private File getImageCacheDir() {
         File dir = getCacheDir();
