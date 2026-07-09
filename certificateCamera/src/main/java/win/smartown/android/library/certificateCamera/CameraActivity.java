@@ -365,17 +365,24 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         } catch (IOException e) {
                             Log.e(TAG, "IO error during photo processing", e);
                             notifyError("IO错误: " + e.getMessage());
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    processingView.setVisibility(View.GONE);
+                                    optionView.setVisibility(View.VISIBLE);
+                                }
+                            });
                         } catch (Exception e) {
                             Log.e(TAG, "Unexpected error during photo processing", e);
                             notifyError("处理照片时出错: " + e.getMessage());
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    processingView.setVisibility(View.GONE);
+                                    optionView.setVisibility(View.VISIBLE);
+                                }
+                            });
                         }
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                processingView.setVisibility(View.GONE);
-                                optionView.setVisibility(View.VISIBLE);
-                            }
-                        });
                     }
                 }).start();
             }
