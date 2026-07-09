@@ -266,11 +266,16 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        byte[] data;
+                        int rotation;
                         try {
-                            byte[] data = imageProxyToBytes(image);
-                            int rotation = image.getImageInfo().getRotationDegrees();
+                            data = imageProxyToBytes(image);
+                            rotation = image.getImageInfo().getRotationDegrees();
+                        } finally {
                             image.close();
+                        }
 
+                        try {
                             File originalFile = getOriginalFile();
                             try (FileOutputStream fos = new FileOutputStream(originalFile)) {
                                 fos.write(data);
