@@ -14,7 +14,7 @@ import java.util.List;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static String TAG = CameraPreview.class.getName();
+    private static final String TAG = CameraPreview.class.getName();
 
     private final Object cameraLock = new Object();
     private Camera camera;
