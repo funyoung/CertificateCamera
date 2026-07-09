@@ -515,6 +515,9 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (cameraPreview != null) {
+            cameraPreview.release();
+        }
         if (mediaActionSound != null) {
             mediaActionSound.release();
             mediaActionSound = null;

@@ -150,7 +150,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         return bestSize;
     }
 
-    private void release() {
+    public void release() {
         synchronized (cameraLock) {
             if (camera != null) {
                 camera.stopPreview();
