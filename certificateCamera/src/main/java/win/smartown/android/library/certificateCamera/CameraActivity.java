@@ -110,6 +110,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private View optionView;
     private View resultView;
     private View processingView;
+    private ImageView resultPreviewView;
 
     private int type;
     private boolean permissionRequested = false;
@@ -214,6 +215,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         optionView = findViewById(R.id.camera_option);
         resultView = findViewById(R.id.camera_result);
         processingView = findViewById(R.id.camera_processing);
+        resultPreviewView = (ImageView) findViewById(R.id.camera_result_preview);
         cameraPreview.setOnClickListener(this);
         findViewById(R.id.camera_close).setOnClickListener(this);
         findViewById(R.id.camera_take).setOnClickListener(this);
@@ -240,6 +242,9 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             optionView.setVisibility(View.VISIBLE);
             cameraPreview.setEnabled(true);
             resultView.setVisibility(View.GONE);
+            resultPreviewView.setVisibility(View.GONE);
+            resultPreviewView.setImageBitmap(null);
+            cropView.setVisibility(View.VISIBLE);
             cameraPreview.startPreview();
         }
     }
@@ -337,19 +342,22 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             }
 
                             Bitmap cropBitmap = Bitmap.createBitmap(bitmap, cropX, cropY, cropWidth, cropHeight);
+                            bitmap.recycle();
 
                             final File cropFile = getCropFile();
                             try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cropFile))) {
                                 cropBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bos);
                                 bos.flush();
                             }
-                            cropBitmap.recycle();
-                            bitmap.recycle();
                             originalFile.delete();
                             cropFilePath = cropFile.getPath();
+                            final Bitmap previewBitmap = cropBitmap;
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    cropView.setVisibility(View.GONE);
+                                    resultPreviewView.setVisibility(View.VISIBLE);
+                                    resultPreviewView.setImageBitmap(previewBitmap);
                                     processingView.setVisibility(View.GONE);
                                     resultView.setVisibility(View.VISIBLE);
                                 }
