@@ -269,6 +269,17 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         byte[] data;
                         try {
                             data = imageProxyToBytes(image);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Failed to read image data", e);
+                            notifyError("读取图片数据失败");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    processingView.setVisibility(View.GONE);
+                                    optionView.setVisibility(View.VISIBLE);
+                                }
+                            });
+                            return;
                         } finally {
                             image.close();
                         }
