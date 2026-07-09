@@ -55,7 +55,7 @@ public class CameraPreview {
 
         imageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-                .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
+                .setFlashMode(ImageCapture.FLASH_MODE_OFF)
                 .build();
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
