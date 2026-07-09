@@ -9,6 +9,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.TorchState;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -109,8 +110,8 @@ public class CameraPreview {
 
     public boolean switchFlashLight() {
         if (camera != null) {
-            if (camera.getCameraInfo().getTorchState().getValue() != null
-                    && camera.getCameraInfo().getTorchState().getValue() == 0) {
+            Integer torchState = camera.getCameraInfo().getTorchState().getValue();
+            if (torchState != null && torchState == TorchState.OFF) {
                 camera.getCameraControl().enableTorch(true);
                 return true;
             } else {
