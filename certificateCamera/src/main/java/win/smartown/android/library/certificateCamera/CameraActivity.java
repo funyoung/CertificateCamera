@@ -430,7 +430,12 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
     private File getImageCacheDir() {
         File dir = getCacheDir();
-        cleanCacheDir(dir);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                cleanCacheDir(dir);
+            }
+        }).start();
         return dir;
     }
 
