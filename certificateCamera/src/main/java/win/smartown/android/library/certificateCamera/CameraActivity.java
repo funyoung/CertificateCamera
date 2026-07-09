@@ -308,6 +308,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                             Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getPath(), options);
                             if (bitmap == null) {
                                 notifyError("图片解码失败");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        processingView.setVisibility(View.GONE);
+                                        optionView.setVisibility(View.VISIBLE);
+                                    }
+                                });
                                 return;
                             }
 
@@ -340,6 +347,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                             if (cropWidth <= 0 || cropHeight <= 0) {
                                 bitmap.recycle();
                                 notifyError("裁剪区域无效");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        processingView.setVisibility(View.GONE);
+                                        optionView.setVisibility(View.VISIBLE);
+                                    }
+                                });
                                 return;
                             }
 
