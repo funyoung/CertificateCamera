@@ -2,11 +2,4 @@
 <resources>
     <string name="touch_to_focus">触摸屏幕对焦</string>
     <string name="processing_photo">正在处理照片…</string>
-    <color name="preview_mock">#9a000000</color>
-    <dimen name="camera_option_bar_size">136dp</dimen>
-    <dimen name="camera_button_size">40dp</dimen>
-    <dimen name="camera_take_button_size">72dp</dimen>
-    <dimen name="camera_button_margin">32dp</dimen>
-    <dimen name="camera_result_button_spacing">80dp</dimen>
-    <integer name="crop_jpeg_quality">90</integer>
 </resources>
