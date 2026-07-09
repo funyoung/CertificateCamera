@@ -42,7 +42,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         void onCameraError(String message);
     }
 
-    private static WeakReference<OnCameraErrorListener> errorListenerRef;
+    private static WeakReference<OnCameraErrorListener> pendingErrorListener;
+
+    private WeakReference<OnCameraErrorListener> errorListenerRef;
 
     public final static int TYPE_IDCARD_FRONT = 1;
     public final static int TYPE_IDCARD_BACK = 2;
@@ -66,7 +68,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public static void openCertificateCamera(android.app.Activity activity, int type, OnCameraErrorListener listener) {
-        errorListenerRef = listener != null ? new WeakReference<>(listener) : null;
+        pendingErrorListener = listener != null ? new WeakReference<>(listener) : null;
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra(EXTRA_TYPE, type);
         activity.startActivityForResult(intent, REQUEST_CODE);
@@ -77,7 +79,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public static void openCertificateCamera(android.app.Activity activity, int type, ActivityResultLauncher<Intent> launcher, OnCameraErrorListener listener) {
-        errorListenerRef = listener != null ? new WeakReference<>(listener) : null;
+        pendingErrorListener = listener != null ? new WeakReference<>(listener) : null;
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra(EXTRA_TYPE, type);
         launcher.launch(intent);
@@ -131,6 +133,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void initCameraView() {
+        errorListenerRef = pendingErrorListener;
+        pendingErrorListener = null;
         type = getIntent().getIntExtra(EXTRA_TYPE, 0);
         if (type != TYPE_IDCARD_FRONT && type != TYPE_IDCARD_BACK
                 && type != TYPE_COMPANY_PORTRAIT && type != TYPE_COMPANY_LANDSCAPE) {
