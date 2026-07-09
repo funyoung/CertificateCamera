@@ -358,6 +358,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                     resultPreviewView.setVisibility(View.VISIBLE);
                                     resultPreviewView.setImageBitmap(previewBitmap);
                                     processingView.setVisibility(View.GONE);
+                                    optionView.setVisibility(View.GONE);
                                     resultView.setVisibility(View.VISIBLE);
                                 }
                             });
