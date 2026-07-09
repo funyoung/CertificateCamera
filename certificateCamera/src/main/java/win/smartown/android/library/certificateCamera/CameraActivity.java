@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.media.MediaActionSound;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 
@@ -265,6 +266,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         optionView.setVisibility(View.GONE);
         processingView.setVisibility(View.VISIBLE);
         cameraPreview.setEnabled(false);
+        playShutterSound();
         final float cropLeft = cropView.getLeft();
         final float cropTop = cropView.getTop();
         final float cropRight = cropView.getRight();
@@ -485,6 +487,15 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                 }
             }
         });
+    }
+
+    private void playShutterSound() {
+        try {
+            MediaActionSound sound = new MediaActionSound();
+            sound.play(MediaActionSound.SHUTTER_CLICK);
+        } catch (Exception e) {
+            Log.d(TAG, "Shutter sound failed: " + e.getMessage());
+        }
     }
 
     /**
