@@ -122,9 +122,6 @@ public class CameraPreview {
         return false;
     }
 
-    public PreviewView getPreviewView() {
-        return previewView;
-    }
 
     public void release() {
         if (cameraProvider != null) {
