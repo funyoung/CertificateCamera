@@ -12,6 +12,7 @@ import android.graphics.Matrix;
 
 import android.hardware.Camera;
 import android.os.Bundle;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.view.View;
@@ -81,7 +82,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
      *             {@link #TYPE_COMPANY_LANDSCAPE}
      */
     public static void openCertificateCamera(Activity activity, int type) {
-        openCertificateCamera(activity, type, null);
+        openCertificateCamera(activity, type, (OnCameraErrorListener) null);
     }
 
     public static void openCertificateCamera(Activity activity, int type, OnCameraErrorListener listener) {
@@ -89,6 +90,17 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra(EXTRA_TYPE, type);
         activity.startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    public static void openCertificateCamera(Activity activity, int type, ActivityResultLauncher<Intent> launcher) {
+        openCertificateCamera(activity, type, launcher, null);
+    }
+
+    public static void openCertificateCamera(Activity activity, int type, ActivityResultLauncher<Intent> launcher, OnCameraErrorListener listener) {
+        errorListenerRef = listener != null ? new WeakReference<>(listener) : null;
+        Intent intent = new Intent(activity, CameraActivity.class);
+        intent.putExtra(EXTRA_TYPE, type);
+        launcher.launch(intent);
     }
 
     /**
