@@ -125,7 +125,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private ImageView resultPreviewView;
 
     private int type;
-    private boolean permissionRequested = false;
+
     private String cropFilePath;
 
     @Override
@@ -133,7 +133,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
-            permissionRequested = true;
+
             return;
         }
         initCameraView();
