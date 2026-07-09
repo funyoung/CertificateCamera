@@ -504,6 +504,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void goBack() {
+        if (cropFilePath == null) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return;
+        }
         Intent intent = new Intent();
         intent.putExtra(EXTRA_RESULT, cropFilePath);
         setResult(RESULT_CODE, intent);
