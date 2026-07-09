@@ -1,43 +1,39 @@
 package win.smartown.android.library.certificateCamera;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.media.MediaActionSound;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-
-import android.hardware.Camera;
+import android.media.MediaActionSound;
 import android.os.Bundle;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
+import androidx.camera.view.PreviewView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import android.util.Log;
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 
-/**
- * Created by smartown on 2018/2/24 11:46.
- * <br>
- * Desc:
- * <br>
- * 拍照界面
- */
-public class CameraActivity extends Activity implements View.OnClickListener {
+public class CameraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "CameraActivity";
 
@@ -47,21 +43,9 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
     private static WeakReference<OnCameraErrorListener> errorListenerRef;
 
-    /**
-     * 拍摄类型-身份证正面
-     */
     public final static int TYPE_IDCARD_FRONT = 1;
-    /**
-     * 拍摄类型-身份证反面
-     */
     public final static int TYPE_IDCARD_BACK = 2;
-    /**
-     * 拍摄类型-竖版营业执照
-     */
     public final static int TYPE_COMPANY_PORTRAIT = 3;
-    /**
-     * 拍摄类型-横版营业执照
-     */
     public final static int TYPE_COMPANY_LANDSCAPE = 4;
 
     public final static int REQUEST_CODE = 0X13;
@@ -76,37 +60,28 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private static final float CROP_SCALE_COMPANY = 0.8f;
     private static final float CROP_SCALE_IDCARD = 0.75f;
 
-    /**
-     * @param type {@link #TYPE_IDCARD_FRONT}
-     *             {@link #TYPE_IDCARD_BACK}
-     *             {@link #TYPE_COMPANY_PORTRAIT}
-     *             {@link #TYPE_COMPANY_LANDSCAPE}
-     */
-    public static void openCertificateCamera(Activity activity, int type) {
+    public static void openCertificateCamera(android.app.Activity activity, int type) {
         openCertificateCamera(activity, type, (OnCameraErrorListener) null);
     }
 
-    public static void openCertificateCamera(Activity activity, int type, OnCameraErrorListener listener) {
+    public static void openCertificateCamera(android.app.Activity activity, int type, OnCameraErrorListener listener) {
         errorListenerRef = listener != null ? new WeakReference<>(listener) : null;
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra(EXTRA_TYPE, type);
         activity.startActivityForResult(intent, REQUEST_CODE);
     }
 
-    public static void openCertificateCamera(Activity activity, int type, ActivityResultLauncher<Intent> launcher) {
+    public static void openCertificateCamera(android.app.Activity activity, int type, ActivityResultLauncher<Intent> launcher) {
         openCertificateCamera(activity, type, launcher, null);
     }
 
-    public static void openCertificateCamera(Activity activity, int type, ActivityResultLauncher<Intent> launcher, OnCameraErrorListener listener) {
+    public static void openCertificateCamera(android.app.Activity activity, int type, ActivityResultLauncher<Intent> launcher, OnCameraErrorListener listener) {
         errorListenerRef = listener != null ? new WeakReference<>(listener) : null;
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra(EXTRA_TYPE, type);
         launcher.launch(intent);
     }
 
-    /**
-     * @return 结果文件路径
-     */
     public static String getResult(Intent data) {
         if (data != null) {
             return data.getStringExtra(EXTRA_RESULT);
@@ -117,16 +92,17 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private static final int PERMISSION_REQUEST_CODE = 0X15;
 
     private CameraPreview cameraPreview;
+    private PreviewView previewView;
     private View containerView;
     private ImageView cropView;
     private ImageView flashImageView;
+    private ImageView switchImageView;
     private View optionView;
     private View resultView;
     private View processingView;
     private ImageView resultPreviewView;
 
     private int type;
-
     private String cropFilePath;
     private MediaActionSound mediaActionSound;
 
@@ -135,7 +111,6 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
-
             return;
         }
         initCameraView();
@@ -155,11 +130,6 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     }
 
     private void initCameraView() {
-        if (!CameraUtils.hasCamera(this)) {
-            notifyError("设备不支持相机");
-            finish();
-            return;
-        }
         type = getIntent().getIntExtra(EXTRA_TYPE, 0);
         if (type != TYPE_IDCARD_FRONT && type != TYPE_IDCARD_BACK
                 && type != TYPE_COMPANY_PORTRAIT && type != TYPE_COMPANY_LANDSCAPE) {
@@ -172,10 +142,12 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
         setContentView(R.layout.activity_camera);
-        cameraPreview = (CameraPreview) findViewById(R.id.camera_surface);
-        //获取屏幕最小边，设置为cameraPreview较窄的一边
+
+        previewView = (PreviewView) findViewById(R.id.camera_surface);
+        cameraPreview = new CameraPreview(this, this, previewView);
+        cameraPreview.startCamera();
+
         float screenMinSize = Math.min(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels);
-        //根据screenMinSize，计算出cameraPreview的较宽的一边，长宽比为标准的16:9
         float maxSize = screenMinSize * RATIO_16_9;
         RelativeLayout.LayoutParams layoutParams;
         if (type == TYPE_COMPANY_PORTRAIT) {
@@ -184,7 +156,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             layoutParams = new RelativeLayout.LayoutParams((int) maxSize, (int) screenMinSize);
         }
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        cameraPreview.setLayoutParams(layoutParams);
+        previewView.setLayoutParams(layoutParams);
 
         containerView = findViewById(R.id.camera_crop_container);
         cropView = (ImageView) findViewById(R.id.camera_crop);
@@ -230,14 +202,18 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         }
 
         flashImageView = (ImageView) findViewById(R.id.camera_flash);
+        switchImageView = (ImageView) findViewById(R.id.camera_switch);
         optionView = findViewById(R.id.camera_option);
         resultView = findViewById(R.id.camera_result);
         processingView = findViewById(R.id.camera_processing);
 
-        cameraPreview.setOnClickListener(this);
+        previewView.setOnClickListener(this);
         findViewById(R.id.camera_close).setOnClickListener(this);
         findViewById(R.id.camera_take).setOnClickListener(this);
         flashImageView.setOnClickListener(this);
+        if (switchImageView != null) {
+            switchImageView.setOnClickListener(this);
+        }
         findViewById(R.id.camera_result_ok).setOnClickListener(this);
         findViewById(R.id.camera_result_cancel).setOnClickListener(this);
     }
@@ -246,7 +222,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.camera_surface) {
-            cameraPreview.focus();
+            return;
         } else if (id == R.id.camera_close) {
             finish();
         } else if (id == R.id.camera_take) {
@@ -254,24 +230,24 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         } else if (id == R.id.camera_flash) {
             boolean isFlashOn = cameraPreview.switchFlashLight();
             flashImageView.setImageResource(isFlashOn ? R.mipmap.camera_flash_on : R.mipmap.camera_flash_off);
+        } else if (id == R.id.camera_switch) {
+            cameraPreview.switchCamera();
         } else if (id == R.id.camera_result_ok) {
             goBack();
         } else if (id == R.id.camera_result_cancel) {
             optionView.setVisibility(View.VISIBLE);
-            cameraPreview.setEnabled(true);
             resultView.setVisibility(View.GONE);
             resultPreviewView.setVisibility(View.GONE);
             resultPreviewView.setImageBitmap(null);
             cropView.setVisibility(View.VISIBLE);
-            cameraPreview.startPreview();
         }
     }
 
     private void takePhoto() {
         optionView.setVisibility(View.GONE);
         processingView.setVisibility(View.VISIBLE);
-        cameraPreview.setEnabled(false);
         playShutterSound();
+
         final float cropLeft = cropView.getLeft();
         final float cropTop = cropView.getTop();
         final float cropRight = cropView.getRight();
@@ -280,19 +256,22 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         final float containerTop = containerView.getTop();
         final float containerRight = containerView.getRight();
         final float containerBottom = containerView.getBottom();
-        final int previewWidth = cameraPreview.getWidth();
-        final int previewHeight = cameraPreview.getHeight();
-        cameraPreview.takePhoto(new Camera.PictureCallback() {
+        final int previewWidth = previewView.getWidth();
+        final int previewHeight = previewView.getHeight();
+
+        cameraPreview.takePhoto(new ImageCapture.OnImageCapturedCallback() {
             @Override
-            public void onPictureTaken(final byte[] data, Camera camera) {
-                camera.stopPreview();
+            public void onCaptureSuccess(@NonNull ImageProxy image) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            byte[] data = imageProxyToBytes(image);
+                            image.close();
+
                             File originalFile = getOriginalFile();
-                            try (FileOutputStream originalFileOutputStream = new FileOutputStream(originalFile)) {
-                                originalFileOutputStream.write(data);
+                            try (FileOutputStream fos = new FileOutputStream(originalFile)) {
+                                fos.write(data);
                             }
 
                             int rotation = getExpectedRotation();
@@ -301,8 +280,8 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             options.inJustDecodeBounds = true;
                             BitmapFactory.decodeFile(originalFile.getPath(), options);
 
-                            int reqWidth = cameraPreview.getWidth();
-                            int reqHeight = cameraPreview.getHeight();
+                            int reqWidth = previewView.getWidth();
+                            int reqHeight = previewView.getHeight();
 
                             boolean isRotated90or270 = (rotation == 90 || rotation == 270);
                             int srcWidth = isRotated90or270 ? options.outHeight : options.outWidth;
@@ -331,11 +310,11 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             float left, top, right, bottom;
                             if (type == TYPE_COMPANY_PORTRAIT) {
                                 left = cropLeft / (float) previewWidth;
-                                top = (containerTop - (float) cameraPreview.getTop()) / (float) previewHeight;
+                                top = (containerTop - (float) previewView.getTop()) / (float) previewHeight;
                                 right = cropRight / (float) previewWidth;
                                 bottom = containerBottom / (float) previewHeight;
                             } else {
-                                left = (containerLeft - (float) cameraPreview.getLeft()) / (float) previewWidth;
+                                left = (containerLeft - (float) previewView.getLeft()) / (float) previewWidth;
                                 top = cropTop / (float) previewHeight;
                                 right = containerRight / (float) previewWidth;
                                 bottom = cropBottom / (float) previewHeight;
@@ -382,9 +361,6 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                                 }
                             });
 
-                        } catch (FileNotFoundException e) {
-                            Log.e(TAG, "File not found during photo processing", e);
-                            notifyError("文件未找到: " + e.getMessage());
                         } catch (IOException e) {
                             Log.e(TAG, "IO error during photo processing", e);
                             notifyError("IO错误: " + e.getMessage());
@@ -397,15 +373,40 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                             public void run() {
                                 processingView.setVisibility(View.GONE);
                                 optionView.setVisibility(View.VISIBLE);
-                                cameraPreview.setEnabled(true);
-                                cameraPreview.startPreview();
                             }
                         });
                     }
                 }).start();
+            }
 
+            @Override
+            public void onError(@NonNull ImageCaptureException exception) {
+                Log.e(TAG, "Photo capture failed: " + exception.getMessage());
+                notifyError("拍照失败: " + exception.getMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        processingView.setVisibility(View.GONE);
+                        optionView.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         });
+    }
+
+    private byte[] imageProxyToBytes(ImageProxy image) {
+        ImageProxy.PlaneProxy[] planes = image.getPlanes();
+        ByteBuffer yBuffer = planes[0].getBuffer();
+        ByteBuffer uBuffer = planes[1].getBuffer();
+        ByteBuffer vBuffer = planes[2].getBuffer();
+        int ySize = yBuffer.remaining();
+        int uSize = uBuffer.remaining();
+        int vSize = vBuffer.remaining();
+        byte[] nv21 = new byte[ySize + uSize + vSize];
+        yBuffer.get(nv21, 0, ySize);
+        vBuffer.get(nv21, ySize, vSize);
+        uBuffer.get(nv21, ySize + vSize, uSize);
+        return nv21;
     }
 
     private static int calculateInSampleSize(int srcWidth, int srcHeight, int reqWidth, int reqHeight) {
@@ -472,16 +473,10 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    /**
-     * @return 拍摄图片原始文件
-     */
     private File getOriginalFile() {
         return new File(getImageCacheDir(), getTypePrefix() + "_" + System.currentTimeMillis() + ".jpg");
     }
 
-    /**
-     * @return 拍摄图片裁剪文件
-     */
     private File getCropFile() {
         return new File(getImageCacheDir(), getTypePrefix() + "Crop_" + System.currentTimeMillis() + ".jpg");
     }
@@ -511,9 +506,6 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    /**
-     * 点击对勾，使用拍照结果，返回对应图片路径
-     */
     private void goBack() {
         Intent intent = new Intent();
         intent.putExtra(EXTRA_RESULT, cropFilePath);
@@ -532,5 +524,4 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             mediaActionSound = null;
         }
     }
-
 }
