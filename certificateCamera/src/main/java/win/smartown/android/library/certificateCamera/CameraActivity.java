@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+
 import android.media.MediaActionSound;
 import android.os.Bundle;
 import android.util.Log;
@@ -267,10 +267,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void run() {
                         byte[] data;
-                        int rotation;
                         try {
                             data = imageProxyToBytes(image);
-                            rotation = image.getImageInfo().getRotationDegrees();
                         } finally {
                             image.close();
                         }
@@ -281,7 +279,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 fos.write(data);
                             }
 
-
                             BitmapFactory.Options options = new BitmapFactory.Options();
                             options.inJustDecodeBounds = true;
                             BitmapFactory.decodeFile(originalFile.getPath(), options);
@@ -289,11 +286,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                             int reqWidth = previewView.getWidth();
                             int reqHeight = previewView.getHeight();
 
-                            boolean isRotated90or270 = (rotation == 90 || rotation == 270);
-                            int srcWidth = isRotated90or270 ? options.outHeight : options.outWidth;
-                            int srcHeight = isRotated90or270 ? options.outWidth : options.outHeight;
-
-                            options.inSampleSize = calculateInSampleSize(srcWidth, srcHeight, reqWidth, reqHeight);
+                            options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight, reqWidth, reqHeight);
                             options.inJustDecodeBounds = false;
                             options.inPreferredConfig = Bitmap.Config.RGB_565;
 
@@ -301,16 +294,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                             if (bitmap == null) {
                                 notifyError("图片解码失败");
                                 return;
-                            }
-
-                            if (rotation != 0) {
-                                Matrix matrix = new Matrix();
-                                matrix.postRotate(rotation);
-                                Bitmap rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                                if (rotated != bitmap) {
-                                    bitmap.recycle();
-                                }
-                                bitmap = rotated;
                             }
 
                             float left, top, right, bottom;
