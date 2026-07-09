@@ -29,11 +29,13 @@ public class CameraPreview {
     private ImageCapture imageCapture;
     private Camera camera;
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
+    private ExecutorService cameraExecutor;
 
     public CameraPreview(Context context, LifecycleOwner lifecycleOwner, PreviewView previewView) {
         this.context = context;
         this.lifecycleOwner = lifecycleOwner;
         this.previewView = previewView;
+        this.cameraExecutor = Executors.newSingleThreadExecutor();
     }
 
     public void startCamera() {
@@ -103,7 +105,7 @@ public class CameraPreview {
 
     public void takePhoto(final ImageCapture.OnImageCapturedCallback callback) {
         if (imageCapture != null) {
-            imageCapture.takePicture(Executors.newSingleThreadExecutor(), callback);
+            imageCapture.takePicture(cameraExecutor, callback);
         }
     }
 
@@ -125,6 +127,10 @@ public class CameraPreview {
     public void release() {
         if (cameraProvider != null) {
             cameraProvider.unbindAll();
+        }
+        if (cameraExecutor != null) {
+            cameraExecutor.shutdownNow();
+            cameraExecutor = null;
         }
     }
 }
