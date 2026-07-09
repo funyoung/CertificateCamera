@@ -59,7 +59,7 @@
                     android:gravity="center"
                     android:text="@string/touch_to_focus"
                     android:textColor="@color/camera_hint_text"
-                    android:textSize="16dp" />
+                    android:textSize="@dimen/camera_hint_text_size" />
 
             </LinearLayout>
 
@@ -137,16 +137,16 @@
                 android:visibility="gone">
 
                 <ProgressBar
-                    android:layout_width="32dp"
-                    android:layout_height="32dp" />
+                    android:layout_width="@dimen/camera_progress_bar_size"
+                    android:layout_height="@dimen/camera_progress_bar_size" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/camera_progress_text_margin_top"
                     android:text="@string/processing_photo"
                     android:textColor="@color/camera_hint_text"
-                    android:textSize="14sp" />
+                    android:textSize="@dimen/camera_progress_text_size" />
 
             </LinearLayout>
 
