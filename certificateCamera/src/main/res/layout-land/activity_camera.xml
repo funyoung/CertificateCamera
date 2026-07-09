@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#000">
 
-    <win.smartown.android.library.certificateCamera.CameraPreview
+    <androidx.camera.view.PreviewView
         android:id="@+id/camera_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
