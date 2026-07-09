@@ -11,6 +11,8 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.concurrent.ExecutionException;
@@ -35,13 +37,18 @@ public class CameraPreview {
     }
 
     public void startCamera() {
-        try {
-            cameraProvider = ProcessCameraProvider.getInstance(context).get();
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "Failed to get ProcessCameraProvider: " + e.getMessage());
-            return;
-        }
-        bindCameraUseCases();
+        ProcessCameraProvider.getInstance(context).addListener(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    cameraProvider = ProcessCameraProvider.getInstance(context).get();
+                } catch (ExecutionException | InterruptedException e) {
+                    Log.e(TAG, "Failed to get ProcessCameraProvider: " + e.getMessage());
+                    return;
+                }
+                bindCameraUseCases();
+            }
+        }, ContextCompat.getMainExecutor(context));
     }
 
     private void bindCameraUseCases() {
