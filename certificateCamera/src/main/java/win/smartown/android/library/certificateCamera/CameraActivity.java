@@ -392,24 +392,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private byte[] imageProxyToBytes(ImageProxy image) {
-        ImageProxy.PlaneProxy[] planes = image.getPlanes();
-        if (planes.length == 1) {
-            ByteBuffer buffer = planes[0].getBuffer();
-            byte[] data = new byte[buffer.remaining()];
-            buffer.get(data);
-            return data;
-        }
-        ByteBuffer yBuffer = planes[0].getBuffer();
-        ByteBuffer uBuffer = planes[1].getBuffer();
-        ByteBuffer vBuffer = planes[2].getBuffer();
-        int ySize = yBuffer.remaining();
-        int uSize = uBuffer.remaining();
-        int vSize = vBuffer.remaining();
-        byte[] nv21 = new byte[ySize + uSize + vSize];
-        yBuffer.get(nv21, 0, ySize);
-        vBuffer.get(nv21, ySize, vSize);
-        uBuffer.get(nv21, ySize + vSize, uSize);
-        return nv21;
+        ImageProxy.PlaneProxy plane = image.getPlanes()[0];
+        ByteBuffer buffer = plane.getBuffer();
+        byte[] data = new byte[buffer.remaining()];
+        buffer.get(data);
+        return data;
     }
 
     private static int calculateInSampleSize(int srcWidth, int srcHeight, int reqWidth, int reqHeight) {
